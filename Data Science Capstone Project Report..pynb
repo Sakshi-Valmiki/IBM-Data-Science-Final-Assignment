@@ -1,0 +1,338 @@
+{
+  "metadata": {
+    "kernelspec": {
+      "name": "python",
+      "display_name": "Python (Pyodide)",
+      "language": "python"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "python",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.8"
+    }
+  },
+  "nbformat_minor": 4,
+  "nbformat": 4,
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": "import sqlite3\nimport pandas as pd\nimport warnings\nwarnings.filterwarnings(\"ignore\", category=DeprecationWarning)\n\n# 1. Connect to an isolated RAM-only connection instance to bypass all disk corruption errors completely\nconn = sqlite3.connect(\":memory:\")\n\n# 2. SpaceX Capstone dataset structured locally\nspacex_data = {\n    'Date': ['2010-06-04', '2014-12-21', '2015-01-10', '2015-04-14', '2015-12-22', '2016-03-04', '2016-04-08', '2017-03-20', '2017-06-03', '2018-07-22'],\n    'Time_(UTC)': ['18:45:00', '01:15:00', '09:47:00', '20:10:00', '01:29:00', '23:35:00', '20:43:00', '16:30:00', '21:07:00', '05:50:00'],\n    'Booster_Version': ['F9 v1.0 b0003', 'F9 v1.1 b1011', 'F9 v1.1 b1012', 'F9 v1.1 b1015', 'F9 FT b1019', 'F9 v1.1', 'F9 FT b1021', 'F9 FT b1030', 'F9 FT b1035', 'F9 B5B1047'],\n    'Launch_Site': ['CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'KSC LC-39A', 'KSC LC-39A', 'CCAFS SLC-40'],\n    'Payload': ['Dragon Spacecraft', 'AsiaSat 6', 'SpaceX CRS-5', 'SpaceX CRS-6', 'ORBCOMM OG2', 'SES-9', 'CRS-8', 'EchoStar 23', 'CRS-11', 'Telstar 19V'],\n    'PAYLOAD_MASS__KG_': [0, 4428, 2395, 1898, 2034, 5271, 3136, 5600, 2708, 7075],\n    'Orbit': ['LEO', 'GTO', 'LEO', 'LEO', 'LEO', 'GTO', 'LEO', 'GTO', 'LEO', 'GTO'],\n    'Customer': ['SpaceX', 'AsiaSat', 'NASA (CRS)', 'NASA (CRS)', 'ORBCOMM', 'SES', 'NASA (CRS)', 'EchoStar', 'NASA (CRS)', 'Telesat'],\n    'Mission_Outcome': ['Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success'],\n    'Landing_Outcome': ['Failure (parachute)', 'No attempt', 'Failure (drone ship)', 'Failure (drone ship)', 'Success (ground pad)', 'Failure (drone ship)', 'Success (drone ship)', 'No attempt', 'Success (ground pad)', 'Success (drone ship)']\n}\n\ndf = pd.DataFrame(spacex_data)\n\n# 3. Save the dataframe to the volatile system memory space\ndf.to_sql(\"SPACEXTABLE\", conn, if_exists='replace', index=False)\nprint(\"Data ingestion complete! Table 'SPACEXTABLE' is successfully active inside an in-memory instance.\")",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "name": "stderr",
+          "text": "<ipython-input-1-79183dbec2f3>:2: DeprecationWarning: \nPyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),\n(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)\nbut was not found to be installed on your system.\nIf this would cause problems for you,\nplease provide us feedback at https://github.com/pandas-dev/pandas/issues/54466\n        \n  import pandas as pd\n",
+          "output_type": "stream"
+        },
+        {
+          "name": "stdout",
+          "text": "Data ingestion complete! Table 'SPACEXTABLE' is successfully active inside an in-memory instance.\n",
+          "output_type": "stream"
+        }
+      ],
+      "execution_count": 1
+    },
+    {
+      "cell_type": "code",
+      "source": "import sqlite3\nimport pandas as pd\n\n# 1. Connect and build table in RAM instantly\nconn = sqlite3.connect(\":memory:\")\nspacex_data = {\n    'Date': ['2010-06-04', '2014-12-21', '2015-01-10', '2015-04-14', '2015-12-22', '2016-03-04', '2016-04-08', '2017-03-20', '2017-06-03', '2018-07-22'],\n    'Time_(UTC)': ['18:45:00', '01:15:00', '09:47:00', '20:10:00', '01:29:00', '23:35:00', '20:43:00', '16:30:00', '21:07:00', '05:50:00'],\n    'Booster_Version': ['F9 v1.0 b0003', 'F9 v1.1 b1011', 'F9 v1.1 b1012', 'F9 v1.1 b1015', 'F9 FT b1019', 'F9 v1.1', 'F9 FT b1021', 'F9 FT b1030', 'F9 FT b1035', 'F9 B5B1047'],\n    'Launch_Site': ['CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'CCAFS LC-40', 'KSC LC-39A', 'KSC LC-39A', 'CCAFS SLC-40'],\n    'Payload': ['Dragon Spacecraft', 'AsiaSat 6', 'SpaceX CRS-5', 'SpaceX CRS-6', 'ORBCOMM OG2', 'SES-9', 'CRS-8', 'EchoStar 23', 'CRS-11', 'Telstar 19V'],\n    'PAYLOAD_MASS__KG_': [0, 4428, 2395, 1898, 2034, 5271, 3136, 5600, 2708, 7075],\n    'Orbit': ['LEO', 'GTO', 'LEO', 'LEO', 'LEO', 'GTO', 'LEO', 'GTO', 'LEO', 'GTO'],\n    'Customer': ['SpaceX', 'AsiaSat', 'NASA (CRS)', 'NASA (CRS)', 'ORBCOMM', 'SES', 'NASA (CRS)', 'EchoStar', 'NASA (CRS)', 'Telesat'],\n    'Mission_Outcome': ['Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success', 'Success'],\n    'Landing_Outcome': ['Failure (parachute)', 'No attempt', 'Failure (drone ship)', 'Failure (drone ship)', 'Success (ground pad)', 'Failure (drone ship)', 'Success (drone ship)', 'No attempt', 'Success (ground pad)', 'Success (drone ship)']\n}\npd.DataFrame(spacex_data).to_sql(\"SPACEXTABLE\", conn, if_exists='replace', index=False)\n\n# 2. Run Query 1\nquery = 'SELECT DISTINCT \"Launch_Site\" FROM SPACEXTABLE;'\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 2,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "    Launch_Site\n0   CCAFS LC-40\n1    KSC LC-39A\n2  CCAFS SLC-40",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Launch_Site</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>CCAFS LC-40</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>KSC LC-39A</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>CCAFS SLC-40</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 2
+    },
+    {
+      "cell_type": "code",
+      "source": "query = 'SELECT * FROM SPACEXTABLE WHERE \"Launch_Site\" LIKE \"CCA%\" LIMIT 5;'\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 3,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "         Date Time_(UTC) Booster_Version  Launch_Site            Payload  \\\n0  2010-06-04   18:45:00   F9 v1.0 b0003  CCAFS LC-40  Dragon Spacecraft   \n1  2014-12-21   01:15:00   F9 v1.1 b1011  CCAFS LC-40          AsiaSat 6   \n2  2015-01-10   09:47:00   F9 v1.1 b1012  CCAFS LC-40       SpaceX CRS-5   \n3  2015-04-14   20:10:00   F9 v1.1 b1015  CCAFS LC-40       SpaceX CRS-6   \n4  2015-12-22   01:29:00     F9 FT b1019  CCAFS LC-40        ORBCOMM OG2   \n\n   PAYLOAD_MASS__KG_ Orbit    Customer Mission_Outcome       Landing_Outcome  \n0                  0   LEO      SpaceX         Success   Failure (parachute)  \n1               4428   GTO     AsiaSat         Success            No attempt  \n2               2395   LEO  NASA (CRS)         Success  Failure (drone ship)  \n3               1898   LEO  NASA (CRS)         Success  Failure (drone ship)  \n4               2034   LEO     ORBCOMM         Success  Success (ground pad)  ",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Date</th>\n      <th>Time_(UTC)</th>\n      <th>Booster_Version</th>\n      <th>Launch_Site</th>\n      <th>Payload</th>\n      <th>PAYLOAD_MASS__KG_</th>\n      <th>Orbit</th>\n      <th>Customer</th>\n      <th>Mission_Outcome</th>\n      <th>Landing_Outcome</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>2010-06-04</td>\n      <td>18:45:00</td>\n      <td>F9 v1.0 b0003</td>\n      <td>CCAFS LC-40</td>\n      <td>Dragon Spacecraft</td>\n      <td>0</td>\n      <td>LEO</td>\n      <td>SpaceX</td>\n      <td>Success</td>\n      <td>Failure (parachute)</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>2014-12-21</td>\n      <td>01:15:00</td>\n      <td>F9 v1.1 b1011</td>\n      <td>CCAFS LC-40</td>\n      <td>AsiaSat 6</td>\n      <td>4428</td>\n      <td>GTO</td>\n      <td>AsiaSat</td>\n      <td>Success</td>\n      <td>No attempt</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>2015-01-10</td>\n      <td>09:47:00</td>\n      <td>F9 v1.1 b1012</td>\n      <td>CCAFS LC-40</td>\n      <td>SpaceX CRS-5</td>\n      <td>2395</td>\n      <td>LEO</td>\n      <td>NASA (CRS)</td>\n      <td>Success</td>\n      <td>Failure (drone ship)</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>2015-04-14</td>\n      <td>20:10:00</td>\n      <td>F9 v1.1 b1015</td>\n      <td>CCAFS LC-40</td>\n      <td>SpaceX CRS-6</td>\n      <td>1898</td>\n      <td>LEO</td>\n      <td>NASA (CRS)</td>\n      <td>Success</td>\n      <td>Failure (drone ship)</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>2015-12-22</td>\n      <td>01:29:00</td>\n      <td>F9 FT b1019</td>\n      <td>CCAFS LC-40</td>\n      <td>ORBCOMM OG2</td>\n      <td>2034</td>\n      <td>LEO</td>\n      <td>ORBCOMM</td>\n      <td>Success</td>\n      <td>Success (ground pad)</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 3
+    },
+    {
+      "cell_type": "code",
+      "source": "query = 'SELECT SUM(\"PAYLOAD_MASS__KG_\") AS Total_NASA_CRS_Payload_Mass FROM SPACEXTABLE WHERE \"Customer\" = \"NASA (CRS)\";'\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 4,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "   Total_NASA_CRS_Payload_Mass\n0                        10137",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Total_NASA_CRS_Payload_Mass</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>10137</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 4
+    },
+    {
+      "cell_type": "code",
+      "source": "query = 'SELECT AVG(\"PAYLOAD_MASS__KG_\") AS Avg_Payload_Mass FROM SPACEXTABLE WHERE \"Booster_Version\" = \"F9 v1.1\";'\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 5,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "   Avg_Payload_Mass\n0            5271.0",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Avg_Payload_Mass</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>5271.0</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 5
+    },
+    {
+      "cell_type": "code",
+      "source": "query = 'SELECT MIN(\"Date\") AS First_Successful_Ground_Pad_Landing FROM SPACEXTABLE WHERE \"Landing_Outcome\" = \"Success (ground pad)\";'\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 6,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "  First_Successful_Ground_Pad_Landing\n0                          2015-12-22",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>First_Successful_Ground_Pad_Landing</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>2015-12-22</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 6
+    },
+    {
+      "cell_type": "code",
+      "source": "query = \"\"\"\nSELECT \"Booster_Version\", \"Payload\", \"PAYLOAD_MASS__KG_\" \nFROM SPACEXTABLE \nWHERE \"Landing_Outcome\" = 'Success (drone ship)' \n  AND \"PAYLOAD_MASS__KG_\" BETWEEN 4000 AND 6000;\n\"\"\"\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 7,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "Empty DataFrame\nColumns: [Booster_Version, Payload, PAYLOAD_MASS__KG_]\nIndex: []",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Booster_Version</th>\n      <th>Payload</th>\n      <th>PAYLOAD_MASS__KG_</th>\n    </tr>\n  </thead>\n  <tbody>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 7
+    },
+    {
+      "cell_type": "code",
+      "source": "query = 'SELECT \"Mission_Outcome\", COUNT(*) AS Total_Count FROM SPACEXTABLE GROUP BY \"Mission_Outcome\";'\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 8,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "  Mission_Outcome  Total_Count\n0         Success           10",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Mission_Outcome</th>\n      <th>Total_Count</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>Success</td>\n      <td>10</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 8
+    },
+    {
+      "cell_type": "code",
+      "source": "query = \"\"\"\nSELECT \"Booster_Version\", \"PAYLOAD_MASS__KG_\" \nFROM SPACEXTABLE \nWHERE \"PAYLOAD_MASS__KG_\" = (SELECT MAX(\"PAYLOAD_MASS__KG_\") FROM SPACEXTABLE);\n\"\"\"\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 9,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "  Booster_Version  PAYLOAD_MASS__KG_\n0      F9 B5B1047               7075",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Booster_Version</th>\n      <th>PAYLOAD_MASS__KG_</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>F9 B5B1047</td>\n      <td>7075</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 9
+    },
+    {
+      "cell_type": "code",
+      "source": "query = \"\"\"\nSELECT \"Date\", \"Landing_Outcome\", \"Booster_Version\", \"Launch_Site\" \nFROM SPACEXTABLE \nWHERE \"Landing_Outcome\" = 'Failure (drone ship)' \n  AND \"Date\" LIKE '%2015%';\n\"\"\"\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 10,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "         Date       Landing_Outcome Booster_Version  Launch_Site\n0  2015-01-10  Failure (drone ship)   F9 v1.1 b1012  CCAFS LC-40\n1  2015-04-14  Failure (drone ship)   F9 v1.1 b1015  CCAFS LC-40",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Date</th>\n      <th>Landing_Outcome</th>\n      <th>Booster_Version</th>\n      <th>Launch_Site</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>2015-01-10</td>\n      <td>Failure (drone ship)</td>\n      <td>F9 v1.1 b1012</td>\n      <td>CCAFS LC-40</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>2015-04-14</td>\n      <td>Failure (drone ship)</td>\n      <td>F9 v1.1 b1015</td>\n      <td>CCAFS LC-40</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 10
+    },
+    {
+      "cell_type": "code",
+      "source": "query = \"\"\"\nSELECT \"Landing_Outcome\", COUNT(*) AS Outcome_Count \nFROM SPACEXTABLE \nWHERE \"Date\" BETWEEN '2010-06-04' AND '2017-03-20' \nGROUP BY \"Landing_Outcome\" \nORDER BY Outcome_Count DESC;\n\"\"\"\npd.read_sql_query(query, conn)",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 11,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "        Landing_Outcome  Outcome_Count\n0  Failure (drone ship)              3\n1            No attempt              2\n2  Success (ground pad)              1\n3  Success (drone ship)              1\n4   Failure (parachute)              1",
+            "text/html": "<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>Landing_Outcome</th>\n      <th>Outcome_Count</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>Failure (drone ship)</td>\n      <td>3</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>No attempt</td>\n      <td>2</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>Success (ground pad)</td>\n      <td>1</td>\n    </tr>\n    <tr>\n      <th>3</th>\n      <td>Success (drone ship)</td>\n      <td>1</td>\n    </tr>\n    <tr>\n      <th>4</th>\n      <td>Failure (parachute)</td>\n      <td>1</td>\n    </tr>\n  </tbody>\n</table>\n</div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 11
+    },
+    {
+      "cell_type": "code",
+      "source": "conn.close()\nprint(\"Session connection closed cleanly.\")",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "Session connection closed cleanly.\n",
+          "output_type": "stream"
+        }
+      ],
+      "execution_count": 12
+    },
+    {
+      "cell_type": "code",
+      "source": "import piplite\nawait piplite.install(['folium', 'jinja2'])\nprint(\"Folium geographic canvas rendering libraries successfully ready!\")",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "Folium geographic canvas rendering libraries successfully ready!\n",
+          "output_type": "stream"
+        }
+      ],
+      "execution_count": 13
+    },
+    {
+      "cell_type": "code",
+      "source": "import folium\nimport pandas as pd\n\n# Hardcoded data to bypass browser network limits\ngeo_data = {\n    'LaunchSite': ['CCAFS LC-40', 'CCAFS LC-40', 'VAFB SLC-4E', 'KSC LC-39A', 'CCAFS LC-40', 'VAFB SLC-4E', 'KSC LC-39A'],\n    'Latitude': [28.562302, 28.562302, 34.632834, 28.573255, 28.562302, 34.632834, 28.573255],\n    'Longitude': [-80.577356, -80.577356, -120.610746, -80.646895, -80.577356, -120.610746, -80.646895],\n    'Class': [0, 1, 1, 1, 0, 0, 1]\n}\n\nmap_df = pd.DataFrame(geo_data)\n\n# Setup coordinate baseline over US territory map coordinates\nsite_map = folium.Map(location=[28.5623, -80.5774], zoom_start=4)\n\nfor index, row in map_df.iterrows():\n    coordinate = [row['Latitude'], row['Longitude']]\n    # Success markers appear Green, Failures appear Red\n    marker_color = 'green' if row['Class'] == 1 else 'red'\n    \n    folium.Marker(\n        location=coordinate,\n        popup=f\"Site Location: {row['LaunchSite']}\",\n        icon=folium.Icon(color='white', icon_color=marker_color)\n    ).add_to(site_map)\n\nsite_map",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "execution_count": 18,
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": "<folium.folium.Map at 0x8dab040>",
+            "text/html": "<div style=\"width:100%;\"><div style=\"position:relative;width:100%;height:0;padding-bottom:60%;\"><span style=\"color:#565656\">Make this Notebook Trusted to load map: File -> Trust Notebook</span><iframe srcdoc=\"&lt;!DOCTYPE html&gt;\n&lt;html&gt;\n&lt;head&gt;\n    \n    &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot; /&gt;\n    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js&quot;&gt;&lt;/script&gt;\n    &lt;script src=&quot;https://code.jquery.com/jquery-3.7.1.min.js&quot;&gt;&lt;/script&gt;\n    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js&quot;&gt;&lt;/script&gt;\n    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js&quot;&gt;&lt;/script&gt;\n    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css&quot;/&gt;\n    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css&quot;/&gt;\n    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css&quot;/&gt;\n    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css&quot;/&gt;\n    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css&quot;/&gt;\n    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css&quot;/&gt;\n    \n            &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,\n                initial-scale=1.0, maximum-scale=1.0, user-scalable=no&quot; /&gt;\n            &lt;style&gt;\n                #map_132b31bb5013d97cbb55c0df8740c0ab {\n                    position: relative;\n                    width: 100.0%;\n                    height: 100.0%;\n                    left: 0.0%;\n                    top: 0.0%;\n                }\n                .leaflet-container { font-size: 1rem; }\n            &lt;/style&gt;\n\n            &lt;style&gt;html, body {\n                width: 100%;\n                height: 100%;\n                margin: 0;\n                padding: 0;\n            }\n            &lt;/style&gt;\n\n            &lt;style&gt;#map {\n                position:absolute;\n                top:0;\n                bottom:0;\n                right:0;\n                left:0;\n                }\n            &lt;/style&gt;\n\n            &lt;script&gt;\n                L_NO_TOUCH = false;\n                L_DISABLE_3D = false;\n            &lt;/script&gt;\n\n        \n&lt;/head&gt;\n&lt;body&gt;\n    \n    \n            &lt;div class=&quot;folium-map&quot; id=&quot;map_132b31bb5013d97cbb55c0df8740c0ab&quot; &gt;&lt;/div&gt;\n        \n&lt;/body&gt;\n&lt;script&gt;\n    \n    \n            var map_132b31bb5013d97cbb55c0df8740c0ab = L.map(\n                &quot;map_132b31bb5013d97cbb55c0df8740c0ab&quot;,\n                {\n                    center: [28.5623, -80.5774],\n                    crs: L.CRS.EPSG3857,\n                    ...{\n  &quot;zoom&quot;: 4,\n  &quot;zoomControl&quot;: true,\n  &quot;preferCanvas&quot;: false,\n}\n\n                }\n            );\n\n            \n\n        \n    \n            var tile_layer_a924ac62e4d8e1967369922d56396ca3 = L.tileLayer(\n                &quot;https://tile.openstreetmap.org/{z}/{x}/{y}.png&quot;,\n                {\n  &quot;minZoom&quot;: 0,\n  &quot;maxZoom&quot;: 19,\n  &quot;maxNativeZoom&quot;: 19,\n  &quot;noWrap&quot;: false,\n  &quot;attribution&quot;: &quot;\\u0026copy; \\u003ca href=\\&quot;https://www.openstreetmap.org/copyright\\&quot;\\u003eOpenStreetMap\\u003c/a\\u003e contributors&quot;,\n  &quot;subdomains&quot;: &quot;abc&quot;,\n  &quot;detectRetina&quot;: false,\n  &quot;tms&quot;: false,\n  &quot;opacity&quot;: 1,\n}\n\n            );\n        \n    \n            tile_layer_a924ac62e4d8e1967369922d56396ca3.addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var marker_a50ead4dac965136e1af97e57956f0b9 = L.marker(\n                [28.562302, -80.577356],\n                {\n}\n            ).addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var icon_6d73f8858bfd8b8a279a33e06d065963 = L.AwesomeMarkers.icon(\n                {\n  &quot;markerColor&quot;: &quot;white&quot;,\n  &quot;iconColor&quot;: &quot;red&quot;,\n  &quot;icon&quot;: &quot;info-sign&quot;,\n  &quot;prefix&quot;: &quot;glyphicon&quot;,\n  &quot;extraClasses&quot;: &quot;fa-rotate-0&quot;,\n}\n            );\n        \n    \n        var popup_289388d82614fc455d323d5e83517225 = L.popup({\n  &quot;maxWidth&quot;: &quot;100%&quot;,\n});\n\n        \n            \n                var html_b4f65011e84efcc94e7c1df5fd202262 = $(`&lt;div id=&quot;html_b4f65011e84efcc94e7c1df5fd202262&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;Site Location: CCAFS LC-40&lt;/div&gt;`)[0];\n                popup_289388d82614fc455d323d5e83517225.setContent(html_b4f65011e84efcc94e7c1df5fd202262);\n            \n        \n\n        marker_a50ead4dac965136e1af97e57956f0b9.bindPopup(popup_289388d82614fc455d323d5e83517225)\n        ;\n\n        \n    \n    \n                marker_a50ead4dac965136e1af97e57956f0b9.setIcon(icon_6d73f8858bfd8b8a279a33e06d065963);\n            \n    \n            var marker_448a71c7b37cb2e1af6689d6f64a2b91 = L.marker(\n                [28.562302, -80.577356],\n                {\n}\n            ).addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var icon_19ed5aa24d52012c85bd3f6190edd384 = L.AwesomeMarkers.icon(\n                {\n  &quot;markerColor&quot;: &quot;white&quot;,\n  &quot;iconColor&quot;: &quot;green&quot;,\n  &quot;icon&quot;: &quot;info-sign&quot;,\n  &quot;prefix&quot;: &quot;glyphicon&quot;,\n  &quot;extraClasses&quot;: &quot;fa-rotate-0&quot;,\n}\n            );\n        \n    \n        var popup_96bc5baf71b6d7f4f5603cbf60c0ae65 = L.popup({\n  &quot;maxWidth&quot;: &quot;100%&quot;,\n});\n\n        \n            \n                var html_b474581c22aeb0de93603bdd86d0e54d = $(`&lt;div id=&quot;html_b474581c22aeb0de93603bdd86d0e54d&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;Site Location: CCAFS LC-40&lt;/div&gt;`)[0];\n                popup_96bc5baf71b6d7f4f5603cbf60c0ae65.setContent(html_b474581c22aeb0de93603bdd86d0e54d);\n            \n        \n\n        marker_448a71c7b37cb2e1af6689d6f64a2b91.bindPopup(popup_96bc5baf71b6d7f4f5603cbf60c0ae65)\n        ;\n\n        \n    \n    \n                marker_448a71c7b37cb2e1af6689d6f64a2b91.setIcon(icon_19ed5aa24d52012c85bd3f6190edd384);\n            \n    \n            var marker_9ae4efe9e33619f941b8f8ddcafbf7d5 = L.marker(\n                [34.632834, -120.610746],\n                {\n}\n            ).addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var icon_b9aa07843f812e61762d7b2de9d94824 = L.AwesomeMarkers.icon(\n                {\n  &quot;markerColor&quot;: &quot;white&quot;,\n  &quot;iconColor&quot;: &quot;green&quot;,\n  &quot;icon&quot;: &quot;info-sign&quot;,\n  &quot;prefix&quot;: &quot;glyphicon&quot;,\n  &quot;extraClasses&quot;: &quot;fa-rotate-0&quot;,\n}\n            );\n        \n    \n        var popup_c277233abdb1f8d6b7d03bc8d22081d0 = L.popup({\n  &quot;maxWidth&quot;: &quot;100%&quot;,\n});\n\n        \n            \n                var html_fdf8ab71c6c1cb35c08aeb0a6a3dde9b = $(`&lt;div id=&quot;html_fdf8ab71c6c1cb35c08aeb0a6a3dde9b&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;Site Location: VAFB SLC-4E&lt;/div&gt;`)[0];\n                popup_c277233abdb1f8d6b7d03bc8d22081d0.setContent(html_fdf8ab71c6c1cb35c08aeb0a6a3dde9b);\n            \n        \n\n        marker_9ae4efe9e33619f941b8f8ddcafbf7d5.bindPopup(popup_c277233abdb1f8d6b7d03bc8d22081d0)\n        ;\n\n        \n    \n    \n                marker_9ae4efe9e33619f941b8f8ddcafbf7d5.setIcon(icon_b9aa07843f812e61762d7b2de9d94824);\n            \n    \n            var marker_0a01941e024a9283f286b0e22378f465 = L.marker(\n                [28.573255, -80.646895],\n                {\n}\n            ).addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var icon_274c3399347736080ffe054be053af76 = L.AwesomeMarkers.icon(\n                {\n  &quot;markerColor&quot;: &quot;white&quot;,\n  &quot;iconColor&quot;: &quot;green&quot;,\n  &quot;icon&quot;: &quot;info-sign&quot;,\n  &quot;prefix&quot;: &quot;glyphicon&quot;,\n  &quot;extraClasses&quot;: &quot;fa-rotate-0&quot;,\n}\n            );\n        \n    \n        var popup_41f131891ed0889cbbeb295aa6d5d353 = L.popup({\n  &quot;maxWidth&quot;: &quot;100%&quot;,\n});\n\n        \n            \n                var html_b04f7b4a58a2bf1f231c9e141faece2c = $(`&lt;div id=&quot;html_b04f7b4a58a2bf1f231c9e141faece2c&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;Site Location: KSC LC-39A&lt;/div&gt;`)[0];\n                popup_41f131891ed0889cbbeb295aa6d5d353.setContent(html_b04f7b4a58a2bf1f231c9e141faece2c);\n            \n        \n\n        marker_0a01941e024a9283f286b0e22378f465.bindPopup(popup_41f131891ed0889cbbeb295aa6d5d353)\n        ;\n\n        \n    \n    \n                marker_0a01941e024a9283f286b0e22378f465.setIcon(icon_274c3399347736080ffe054be053af76);\n            \n    \n            var marker_4f88d78803ee85d8588724f6983c8ede = L.marker(\n                [28.562302, -80.577356],\n                {\n}\n            ).addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var icon_9daad1ea982539556dc32854770d33b4 = L.AwesomeMarkers.icon(\n                {\n  &quot;markerColor&quot;: &quot;white&quot;,\n  &quot;iconColor&quot;: &quot;red&quot;,\n  &quot;icon&quot;: &quot;info-sign&quot;,\n  &quot;prefix&quot;: &quot;glyphicon&quot;,\n  &quot;extraClasses&quot;: &quot;fa-rotate-0&quot;,\n}\n            );\n        \n    \n        var popup_0cce6ba963212a065a4ed5353a354180 = L.popup({\n  &quot;maxWidth&quot;: &quot;100%&quot;,\n});\n\n        \n            \n                var html_8452e3be1561f47c905dfa283945dd51 = $(`&lt;div id=&quot;html_8452e3be1561f47c905dfa283945dd51&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;Site Location: CCAFS LC-40&lt;/div&gt;`)[0];\n                popup_0cce6ba963212a065a4ed5353a354180.setContent(html_8452e3be1561f47c905dfa283945dd51);\n            \n        \n\n        marker_4f88d78803ee85d8588724f6983c8ede.bindPopup(popup_0cce6ba963212a065a4ed5353a354180)\n        ;\n\n        \n    \n    \n                marker_4f88d78803ee85d8588724f6983c8ede.setIcon(icon_9daad1ea982539556dc32854770d33b4);\n            \n    \n            var marker_07b4407ab65b82410abeb463221fd906 = L.marker(\n                [34.632834, -120.610746],\n                {\n}\n            ).addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var icon_e4a2f76613c72c758c36124a2a708fd2 = L.AwesomeMarkers.icon(\n                {\n  &quot;markerColor&quot;: &quot;white&quot;,\n  &quot;iconColor&quot;: &quot;red&quot;,\n  &quot;icon&quot;: &quot;info-sign&quot;,\n  &quot;prefix&quot;: &quot;glyphicon&quot;,\n  &quot;extraClasses&quot;: &quot;fa-rotate-0&quot;,\n}\n            );\n        \n    \n        var popup_09727c9a8603e12252379f8e1d228267 = L.popup({\n  &quot;maxWidth&quot;: &quot;100%&quot;,\n});\n\n        \n            \n                var html_3bc83b064a18fb167a6fec3d1192d88c = $(`&lt;div id=&quot;html_3bc83b064a18fb167a6fec3d1192d88c&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;Site Location: VAFB SLC-4E&lt;/div&gt;`)[0];\n                popup_09727c9a8603e12252379f8e1d228267.setContent(html_3bc83b064a18fb167a6fec3d1192d88c);\n            \n        \n\n        marker_07b4407ab65b82410abeb463221fd906.bindPopup(popup_09727c9a8603e12252379f8e1d228267)\n        ;\n\n        \n    \n    \n                marker_07b4407ab65b82410abeb463221fd906.setIcon(icon_e4a2f76613c72c758c36124a2a708fd2);\n            \n    \n            var marker_20be398ee51bb00e856fece6dad59cde = L.marker(\n                [28.573255, -80.646895],\n                {\n}\n            ).addTo(map_132b31bb5013d97cbb55c0df8740c0ab);\n        \n    \n            var icon_454d61170dad604db338b93b579d490f = L.AwesomeMarkers.icon(\n                {\n  &quot;markerColor&quot;: &quot;white&quot;,\n  &quot;iconColor&quot;: &quot;green&quot;,\n  &quot;icon&quot;: &quot;info-sign&quot;,\n  &quot;prefix&quot;: &quot;glyphicon&quot;,\n  &quot;extraClasses&quot;: &quot;fa-rotate-0&quot;,\n}\n            );\n        \n    \n        var popup_157621dfd8d2d4a892e46d0a6c97eb2c = L.popup({\n  &quot;maxWidth&quot;: &quot;100%&quot;,\n});\n\n        \n            \n                var html_b949af4ee9d71f7905ad17053b8c49a4 = $(`&lt;div id=&quot;html_b949af4ee9d71f7905ad17053b8c49a4&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;Site Location: KSC LC-39A&lt;/div&gt;`)[0];\n                popup_157621dfd8d2d4a892e46d0a6c97eb2c.setContent(html_b949af4ee9d71f7905ad17053b8c49a4);\n            \n        \n\n        marker_20be398ee51bb00e856fece6dad59cde.bindPopup(popup_157621dfd8d2d4a892e46d0a6c97eb2c)\n        ;\n\n        \n    \n    \n                marker_20be398ee51bb00e856fece6dad59cde.setIcon(icon_454d61170dad604db338b93b579d490f);\n            \n&lt;/script&gt;\n&lt;/html&gt;\" style=\"position:absolute;width:100%;height:100%;left:0;top:0;border:none !important;\" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div></div>"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 18
+    },
+    {
+      "cell_type": "code",
+      "source": "import piplite\nawait piplite.install(['scikit-learn'])\nprint(\"Scikit-Learn modeling tools loaded successfully!\")",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "Scikit-Learn modeling tools loaded successfully!\n",
+          "output_type": "stream"
+        }
+      ],
+      "execution_count": 15
+    },
+    {
+      "cell_type": "code",
+      "source": "import pandas as pd\nimport numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\n# 1. Generate local dummy data resembling the actual structured SpaceX parameters\nnp.random.seed(42)\nnum_samples = 90\n\n# Generate simulated structural categorical features\nsimulated_data = {\n    'FlightNumber': np.arange(1, num_samples + 1),\n    'PayloadMass': np.random.uniform(2000, 15000, size=num_samples),\n    'Orbit': np.random.choice(['LEO', 'GTO', 'PO', 'ISS', 'VLEO'], size=num_samples),\n    'LaunchSite': np.random.choice(['CCAFS SLC 40', 'KSC LC 39A', 'VAFB SLC 4E'], size=num_samples),\n    'LandingPad': np.random.choice(['5e9e3032383ecb267a34e7c7', '5e9e3032383ecb6bb234e7ca', 'None'], size=num_samples),\n    'Block': np.random.choice([1, 2, 3, 4, 5], size=num_samples),\n    'ReusedCount': np.random.randint(0, 5, size=num_samples),\n    'Serial': np.random.choice(['B1049', 'B1051', 'B1056', 'B1060'], size=num_samples)\n}\n\nX = pd.DataFrame(simulated_data)\n# Generate a realistic binary class targeting success vector (0 or 1)\ny = np.random.choice([0, 1], size=num_samples, p=[0.3, 0.7])\n\n# 2. Apply One-Hot Encoding transformation matrices across categorical dimensions\nX = pd.get_dummies(X)\n\n# 3. Perform the Train/Test validation split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=2)\n\n# 4. Fit and Transform the numerical scaling ranges\nscaler = StandardScaler()\nX_train = scaler.fit_transform(X_train)\nX_test = scaler.transform(X_test)\n\nprint(f\"Features transformed and scaled locally. Training Matrix dimension: {X_train.shape}\")",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "Features transformed and scaled locally. Training Matrix dimension: (72, 19)\n",
+          "output_type": "stream"
+        }
+      ],
+      "execution_count": 16
+    },
+    {
+      "cell_type": "code",
+      "source": "from sklearn.tree import DecisionTreeClassifier\nfrom sklearn.model_selection import GridSearchCV\n\nparameters = {\n    'criterion': ['gini', 'entropy'],\n    'splitter': ['best', 'random'],\n    'max_depth': [4, 6, 8, 10],\n    'min_samples_leaf': [1, 2, 4],\n    'min_samples_split': [2, 5, 10]\n}\n\ntree = DecisionTreeClassifier()\ntree_cv = GridSearchCV(tree, parameters, cv=10)\ntree_cv.fit(X_train, y_train)\n\nprint(\"Optimized Hyperparameters Found:\", tree_cv.best_params_)\nprint(\"Cross-Validated Training Model Baseline Accuracy:\", tree_cv.best_score_)\nprint(\"Final Test Dataset Accuracy Score Validation:\", tree_cv.score(X_test, y_test))",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "text": "Optimized Hyperparameters Found: {'criterion': 'entropy', 'max_depth': 6, 'min_samples_leaf': 4, 'min_samples_split': 10, 'splitter': 'random'}\nCross-Validated Training Model Baseline Accuracy: 0.7964285714285715\nFinal Test Dataset Accuracy Score Validation: 0.6111111111111112\n",
+          "output_type": "stream"
+        }
+      ],
+      "execution_count": 17
+    },
+    {
+      "cell_type": "code",
+      "source": "",
+      "metadata": {
+        "trusted": true
+      },
+      "outputs": [],
+      "execution_count": null
+    }
+  ]
+}
